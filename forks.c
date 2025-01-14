@@ -1,3 +1,14 @@
+//Aaron Webb
+//Jan 14, 2025
+//CMSC412
+//Professor Alin Suciu
+
+/*
+This program demonstrates the ability to fork
+processes in the C programming language
+using the below header files.
+*/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -21,7 +32,7 @@ int main(){
         {
             //Grandchild1 process block
             printf("I am the process Grandchild1 and my pid is %d. "
-            "My parent pid is %d.\n", getpid(), getppid());
+            "My parent pid is %d.\n", getpid() , getppid());
         } else
         {
             //New Child1 process block after GC fork
@@ -33,14 +44,14 @@ int main(){
     } else
     {
         //Current Parent process block
-        wait(&status);
+        wait(&status); //wait for Child1 so it can't erroneously signal Parent
         int child_2_pid = fork();
         if(child_2_pid == -1)
         {
-            printf("Second fork failure.\n");
+            printf("Child2 fork failure.\n");
         } else if(child_2_pid == 0)
         {
-            //second child process block
+            //Current Child2 process block
             int grandchild_2_pid = fork();
             if(grandchild_2_pid == -1)
             {
@@ -50,14 +61,14 @@ int main(){
                 printf("I am the process Grandchild2 and my pid is %d. "
                 "My parent pid is %d.\n", getpid(), getppid());
             } else {
-                wait(&status);
+                wait(&status); //wait for child (Grandchild2) to finish
                 printf("I am the process Child2 and my pid is %d. "
                 "My parent pid is %d.\n", getpid(), getppid());
             }
         } else
         {
-            //new parent block (after second fork)
-            wait(&status);
+            //New parent block (Child2 fork)
+            wait(&status); //wait on Child2 to finish
             printf("I am the Parent process and my pid is %d. "
             "Both my children finished their execution.\n", getpid());
         }
