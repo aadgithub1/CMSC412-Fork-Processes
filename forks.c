@@ -3,60 +3,64 @@
 #include <sys/wait.h>
 
 int main(){
-    //we have an initial parent proecess P
-    //P should create 2 child processes, Child1 and Child2
-    //Process P will create process Child1
 
-    int child_1_pid, child_2_pid, status;
+    int child_1_pid, status;
     child_1_pid = fork();
 
     if(child_1_pid == -1)
     {
-        printf("fork failed\n");
+        printf("Fork failed\n");
     } else if(child_1_pid == 0)
     {
-        //this is the first child process block
-        printf("i am the first child! parent id: %d\n", getppid());
+        //Currently Child1 process block
+        int grandchild_1_pid = fork();
+        if(grandchild_1_pid == -1)
+        {
+            printf("Grandchild1 fork failed.\n");
+        } else if(grandchild_1_pid == 0)
+        {
+            //Grandchild1 process block
+            printf("I am the process Grandchild1 and my pid is %d. "
+            "My parent pid is %d.\n", getpid(), getppid());
+        } else
+        {
+            //New Child1 process block after GC fork
+            wait(&status); //wait for child process (Grandchild1) to finish
+            printf("I am the process Child1 and my pid is %d. "
+            "My parent pid is %d.\n", getpid(), getppid());
+        }
+        
     } else
     {
-        //currently parent block (before second fork)
+        //Current Parent process block
         wait(&status);
-        child_2_pid = fork();
+        int child_2_pid = fork();
         if(child_2_pid == -1)
         {
-            printf("second fork failure\n");
+            printf("Second fork failure.\n");
         } else if(child_2_pid == 0)
         {
             //second child process block
-            printf("i am the second child! parent pid: %d\n", getppid());
+            int grandchild_2_pid = fork();
+            if(grandchild_2_pid == -1)
+            {
+                printf("Grandchild2 fork failure.\n");
+            } else if (grandchild_2_pid == 0)
+            {
+                printf("I am the process Grandchild2 and my pid is %d. "
+                "My parent pid is %d.\n", getpid(), getppid());
+            } else {
+                wait(&status);
+                printf("I am the process Child2 and my pid is %d. "
+                "My parent pid is %d.\n", getpid(), getppid());
+            }
         } else
         {
             //new parent block (after second fork)
             wait(&status);
-            printf("i am the parent with ID %d\n", getpid());
+            printf("I am the Parent process and my pid is %d. "
+            "Both my children finished their execution.\n", getpid());
         }
     }
-
-
-
-    
-    // then will immediately create
-    // process Child2 and then will wait for 
-    // both child processes to finish their execution;
-    // in the end it will display the message “I am the Parent 
-    // process and my pid is ... . Both my children
-    // finished their execution.” (the ellipsis stand for the actual pid 
-    // value which should be an integer number)
-
-
-
-
-
-
-
-
-
-    //Child1 creates its own process, GrandChild1
-    //Child2 creates it own process, GrandChild2
     return 0;
 }
