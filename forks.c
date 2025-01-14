@@ -44,15 +44,14 @@ int main(){
     } else
     {
         //Current Parent process block
-        wait(&status); //wait for Child1 so it can't erroneously signal Parent
-        int child_2_pid = fork();
+        int child_2_pid = fork(); //immediate fork to Child2
         if(child_2_pid == -1)
         {
             printf("Child2 fork failure.\n");
         } else if(child_2_pid == 0)
         {
             //Current Child2 process block
-            int grandchild_2_pid = fork();
+            int grandchild_2_pid = fork(); //immediate fork to Grandchild2
             if(grandchild_2_pid == -1)
             {
                 printf("Grandchild2 fork failure.\n");
@@ -67,8 +66,9 @@ int main(){
             }
         } else
         {
-            //New parent block (Child2 fork)
-            wait(&status); //wait on Child2 to finish
+            //New parent block (after Child2 fork)
+            wait(&status); //wait on both children to signal
+            wait(&status);
             printf("I am the Parent process and my pid is %d. "
             "Both my children finished their execution.\n", getpid());
         }
